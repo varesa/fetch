@@ -2,4 +2,8 @@
 
 set -euo pipefail
 
-echo "Hello world"
+while true
+do
+    echo "Hello world"
+    sleep 5
+done
