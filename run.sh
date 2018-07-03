@@ -4,6 +4,6 @@ set -euo pipefail
 
 while true
 do
-    echo "Hello world"
+    ssh -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
     sleep 5
 done
