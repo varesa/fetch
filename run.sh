@@ -22,9 +22,9 @@ do
 
     for file in ${WORK}/*; do
         cp $file /archive/
-        if [ -f /archive/$(basename $file) ]; then
+        if [ -f /archive/$(basename ${file}) ]; then
             rm $file
-            ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "rm ${REMOTE_PATH}/$(basename file)"
+            ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "rm ${REMOTE_PATH}/$(basename ${file})"
         fi
     done
     sleep 5
