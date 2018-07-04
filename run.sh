@@ -29,7 +29,7 @@ function process_file {
 while true
 do
     # Test the connection
-    ssh ${SSH_OPTS} ${REMOTE} "ls -lah ${REMOTE_PATH}"
+    ssh ${SSH_OPTS} ${REMOTE} "true"
 
     # Check and download any queued files
     if scp ${SSH_OPTS} "${REMOTE}:${REMOTE_PATH}/*" ${WORK}; then
