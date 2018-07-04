@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# NSS_WRAPPER
+
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 envsubst < passwd.template > /tmp/passwd
@@ -9,23 +11,43 @@ export LD_PRELOAD=libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
 
-HOME=/tmp/home
-mkdir -p ${HOME}
+# /NSS_WRAPPER
 
-WORK=$HOME/work
+SSH_OPTS="-o StrictHostKeyChecking=no -i /keys/ssh/fetch" 
+REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
+
+WORK=/tmp/work
 mkdir -p ${WORK}
+
+function process_file {
+    echo "Here I would do something with $1"
+}
 
 while true
 do
     # Test the connection
-    ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
+    ssh ${SSH_OPTS} ${REMOTE} "ls -lah ${REMOTE_PATH}"
 
-    if scp -o StrictHostKeyChecking=no -i /keys/ssh/fetch "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/*" ${WORK}; then
+    # Check and download any queued files
+    if scp ${SSH_OPTS} "${REMOTE}:${REMOTE_PATH}/*" ${WORK}; then
+
         for file in ${WORK}/*; do
-            cp $file /archive/
+            # Archive all the files
+            cp ${file} /archive/
+
+            process_file ${file}
+
+            # Make sure that everything is fine so far and we have a file
             if [ -f /archive/$(basename ${file}) ]; then
-                rm $file
-                ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "rm ${REMOTE_PATH}/$(basename ${file})"
+
+                # Delete the temporary file locally
+                rm ${file}
+
+                # ... and remotely
+                ssh ${SSH_OPTS} ${REMOTE} "rm ${REMOTE_PATH}/$(basename ${file})"
+            else
+                echo "Something went wrong and we didn't get a file"
+                exit 1
             fi
         done
     else
