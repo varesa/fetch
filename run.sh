@@ -17,15 +17,20 @@ mkdir -p ${WORK}
 
 while true
 do
+    # Test the connection
     ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
-    scp -o StrictHostKeyChecking=no -i /keys/ssh/fetch "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/*" ${WORK}
 
-    for file in ${WORK}/*; do
-        cp $file /archive/
-        if [ -f /archive/$(basename ${file}) ]; then
-            rm $file
-            ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "rm ${REMOTE_PATH}/$(basename ${file})"
-        fi
-    done
-    sleep 5
+    if scp -o StrictHostKeyChecking=no -i /keys/ssh/fetch "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/*" ${WORK}; then
+        for file in ${WORK}/*; do
+            cp $file /archive/
+            if [ -f /archive/$(basename ${file}) ]; then
+                rm $file
+                ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "rm ${REMOTE_PATH}/$(basename ${file})"
+            fi
+        done
+    else
+        echo "No files found"
+    fi
+
+    sleep 60
 done
