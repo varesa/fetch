@@ -1,6 +1,6 @@
 FROM centos:7
 
-RUN yum install -y gnupg2 openssh-clients
+RUN yum install -y gettext gnupg2 nss_wrapper openssh-clients
 
 COPY . /fetch/
 WORKDIR /fetch/
