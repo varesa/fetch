@@ -11,6 +11,6 @@ export NSS_WRAPPER_GROUP=/etc/group
 
 while true
 do
-    ssh -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
+    ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
     sleep 5
 done
