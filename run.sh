@@ -4,6 +4,9 @@ set -euo pipefail
 
 # NSS_WRAPPER
 
+export HOME=/tmp/home
+mkdir ${HOME}
+
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 envsubst < passwd.template > /tmp/passwd
