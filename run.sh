@@ -18,7 +18,7 @@ mkdir -p ${WORK}
 while true
 do
     ssh -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "ls -lah ${REMOTE_PATH}"
-    scp -o StrictHostKeyChecking=no -i /keys/ssh/fetch ${REMOTE_USER}@${REMOTE_HOST} "${REMOTE_PATH}/*" ${WORK}
+    scp -o StrictHostKeyChecking=no -i /keys/ssh/fetch "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/*" ${WORK}
 
     for file in ${WORK}/*; do
         echo $file
