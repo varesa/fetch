@@ -16,7 +16,6 @@ envsubst < passwd.template > /tmp/passwd
 export LD_PRELOAD=/usr/lib64/libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
-export NSS_WRAPPER_HOSTNAME=${MAIL_DOMAIN}
 
 #
 # GPG Init
@@ -27,7 +26,7 @@ gpg --import /keys/gpg/privatekey.asc
 function process_file {
     tmp=$(mktemp -u)
     gpg --output ${tmp} --decrypt $1
-    cat ${tmp} | python formatter.py | sendmail -v ${EMAIL_RECIPIENT}
+    cat ${tmp} | python formatter.py | sendemail -f fetch@${MAIL_DOMAIN} -v ${MAIL_RECIPIENT}
     rm ${tmp}
 }
 
