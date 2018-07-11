@@ -5,7 +5,7 @@ def format(doc):
     keys = doc.keys()
     for key in keys:
         spacer = ":" + (12 - len(key)) * " "
-        print(key.capitalize() + spacer + doc[key].encode('utf-8'))
+        print(key.encode('utf-8').capitalize() + spacer + doc[key].encode('utf-8'))
 
 doc = json.load(sys.stdin)
 
