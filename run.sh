@@ -27,7 +27,7 @@ gpg --import /keys/gpg/privatekey.asc
 function process_file {
     tmp=$(mktemp -u)
     gpg --output ${tmp} --decrypt $1
-    cat ${tmp}
+    cat ${tmp} | python formatter.py | sendmail -v ${EMAIL_RECIPIENT}
     rm ${tmp}
 }
 
