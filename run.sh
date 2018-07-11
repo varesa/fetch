@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
+#
 # NSS_WRAPPER
-
+#
 export HOME=/tmp/home
 mkdir ${HOME}
 
@@ -13,18 +14,32 @@ envsubst < passwd.template > /tmp/passwd
 export LD_PRELOAD=libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
-
+#
 # /NSS_WRAPPER
+#
+
+#
+# GPG Init
+#
+
+gpg --import /keys/gpg/privatekey.asc
+
+function process_file {
+    file=$(mktemp -u)
+    gpg --output ${file} --decrypt $1
+    cat ${file}
+    rm ${file}
+}
+
+#
+# SSH Opts
+#
 
 SSH_OPTS="-o StrictHostKeyChecking=no -i /keys/ssh/fetch" 
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
 
 WORK=/tmp/work
 mkdir -p ${WORK}
-
-function process_file {
-    echo "Here I would do something with $1"
-}
 
 while true
 do
