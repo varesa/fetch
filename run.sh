@@ -25,10 +25,10 @@ export NSS_WRAPPER_GROUP=/etc/group
 gpg --import /keys/gpg/privatekey.asc
 
 function process_file {
-    file=$(mktemp -u)
-    gpg --output ${file} --decrypt $1
-    cat ${file}
-    rm ${file}
+    tmp=$(mktemp -u)
+    gpg --output ${tmp} --decrypt $1
+    cat ${tmp}
+    rm ${tmp}
 }
 
 #
