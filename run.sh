@@ -5,18 +5,18 @@ set -euo pipefail
 #
 # NSS_WRAPPER
 #
+
 export HOME=/tmp/home
 mkdir ${HOME}
 
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 envsubst < passwd.template > /tmp/passwd
-export LD_PRELOAD=libnss_wrapper.so
+
+export LD_PRELOAD=/usr/lib64/libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
-#
-# /NSS_WRAPPER
-#
+export NSS_WRAPPER_HOSTNAME=${MAIL_DOMAIN}
 
 #
 # GPG Init
