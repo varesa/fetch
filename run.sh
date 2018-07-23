@@ -26,7 +26,9 @@ gpg --import /keys/gpg/privatekey.asc
 function process_file {
     tmp=$(mktemp -u)
     gpg --output ${tmp} --decrypt $1
-    cat ${tmp} | python formatter.py | sendemail -v -f fetch@${MAIL_DOMAIN} -s ${MAIL_SERVER} -t ${MAIL_RECIPIENT} -u "Lomake" -o tls=no
+    cat ${tmp} | python formatter.py | sendemail -v \
+            -s ${MAIL_SERVER} -o message-charset=utf-8 \
+            -f fetch@${MAIL_DOMAIN} -t ${MAIL_RECIPIENT} -u "Lomake" -o tls=no
     rm ${tmp}
 }
 
