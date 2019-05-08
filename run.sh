@@ -54,7 +54,7 @@ do
     if [[ -z "$(ssh ${SSH_OPTS} ${REMOTE} \"find ${REMOTE_PATH}/ -type f\")" ]]; then
         # No files to be found, write a log message once per hour
         hour="$(date +%H)"
-        if [[ "$hour" != "$last_miss_hour" ]];
+        if [[ "$hour" != "$last_miss_hour" ]]; then
             log "No files found (message silenced for this hour)"
         fi
         last_miss_hour="$hour"
