@@ -60,7 +60,7 @@ do
         last_miss_hour="$hour"
     else
         log "Downloading queued files"
-        scp ${SSH_OPTS} "${REMOTE}:${REMOTE_PATH}/*" ${WORK}; then
+        scp ${SSH_OPTS} "${REMOTE}:${REMOTE_PATH}/*" ${WORK}
 
         for file in ${WORK}/*; do
             # Archive all the files
