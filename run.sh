@@ -51,7 +51,7 @@ last_miss_hour=""
 while true
 do
     # Check if there are files
-    if [[ -z "$(ssh ${SSH_OPTS} ${REMOTE} \"find ${REMOTE_PATH}/ -type f\")" ]]; then
+    if [[ -z "$(ssh ${SSH_OPTS} ${REMOTE} find ${REMOTE_PATH}/ -type f)" ]]; then
         # No files to be found, write a log message once per hour
         hour="$(date +%H)"
         if [[ "$hour" != "$last_miss_hour" ]]; then
