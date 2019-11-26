@@ -28,12 +28,37 @@ function log {
 gpg --import /keys/gpg/privatekey.asc
 
 function process_file {
-    tmp=$(mktemp -u)
+    tmp=$(mktemp --dry-run)
+    out=$(mktemp)
+    err=$(mktemp)
+
     gpg --output ${tmp} --decrypt $1
-    cat ${tmp} | python formatter.py | sendemail -v \
+
+
+    if cat ${tmp} | python formatter.py >${out} 2>${err}; then
+        cat ${out} | sendemail -v \
             -s ${MAIL_SERVER} -o message-charset=utf-8 \
             -f fetch@${MAIL_DOMAIN} -t ${MAIL_RECIPIENT} -u "Lomake" -o tls=no
-    rm ${tmp}
+    else
+        msg=$(mktemp)
+
+        echo -e "Virhe käsiteltäessä lomaketta:\n" >> ${msg}
+        cat ${err} >> ${msg}
+        echo -e "\n\n" >> ${msg}
+
+        echo -e "Käsitelty lomake (mahdollisesti puutteellinen):\n" >> ${msg}
+        cat ${out} >> ${msg}
+        echo -e "\n\n" >> ${msg}
+
+        echo -e "Alkuperäinen sähköposti:\n" >> ${msg}
+        cat ${tmp} >> ${msg}
+
+        cat ${msg} | sendemail -v \
+            -s ${MAIL_SERVER} -o message-charset=utf-8 \
+            -f fetch@${MAIL_DOMAIN} -t ${ERROR_RECIPIENT} -u "Lomakkeenkäsittelyvirhe" -o tls=no
+    fi
+
+    rm ${tmp} ${out} ${err}
 }
 
 #
