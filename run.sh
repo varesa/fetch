@@ -18,7 +18,7 @@ export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
 
 function log {
-    echo "$(date -Iseconds) $@"
+    echo "$(date -Iseconds) $*"
 }
 
 #
@@ -32,33 +32,31 @@ function process_file {
     out=$(mktemp)
     err=$(mktemp)
 
-    gpg --output ${tmp} --decrypt $1
+    gpg --output "${tmp}" --decrypt "${1}"
 
 
-    if cat ${tmp} | python formatter.py >${out} 2>${err}; then
-        cat ${out} | sendemail -v \
-            -s ${MAIL_SERVER} -o message-charset=utf-8 \
-            -f fetch@${MAIL_DOMAIN} -t ${MAIL_RECIPIENT} -u "Lomake" -o tls=no
+    if cat "${tmp}" | python formatter.py >"${out}" 2>"${err}"; then
+        cat "${out}" | sendemail -v \
+            -s "${MAIL_SERVER}" -o message-charset=utf-8 \
+            -f "fetch@${MAIL_DOMAIN}" -t "${MAIL_RECIPIENT}" -u "Lomake" -o tls=no
     else
-        msg=$(mktemp)
+        {
+            echo -e "Virhe käsiteltäessä lomaketta:\n"
+            cat "${err}"
+            echo -e "\n\n"
 
-        echo -e "Virhe käsiteltäessä lomaketta:\n" >> ${msg}
-        cat ${err} >> ${msg}
-        echo -e "\n\n" >> ${msg}
+            echo -e "Käsitelty lomake (mahdollisesti puutteellinen):\n"
+            cat "${out}"
+            echo -e "\n\n"
 
-        echo -e "Käsitelty lomake (mahdollisesti puutteellinen):\n" >> ${msg}
-        cat ${out} >> ${msg}
-        echo -e "\n\n" >> ${msg}
-
-        echo -e "Alkuperäinen sähköposti:\n" >> ${msg}
-        cat ${tmp} >> ${msg}
-
-        cat ${msg} | sendemail -v \
-            -s ${MAIL_SERVER} -o message-charset=utf-8 \
-            -f fetch@${MAIL_DOMAIN} -t ${ERROR_RECIPIENT} -u "Lomakkeenkäsittelyvirhe" -o tls=no
+            echo -e "Alkuperäinen sähköposti:\n"
+            cat "${tmp}"
+        } | sendemail -v \
+            -s "${MAIL_SERVER}" -o message-charset=utf-8 \
+            -f "fetch@${MAIL_DOMAIN}" -t "${ERROR_RECIPIENT}" -u "Lomakkeenkäsittelyvirhe" -o tls=no
     fi
 
-    rm ${tmp} ${out} ${err}
+    rm "${tmp}" "${out}" "${err}"
 }
 
 #
@@ -76,7 +74,7 @@ last_miss_hour=""
 while true
 do
     # Check if there are files
-    if [[ -z "$(ssh ${SSH_OPTS} ${REMOTE} find ${REMOTE_PATH}/ -type f)" ]]; then
+    if [[ -z "$(ssh ${SSH_OPTS} "${REMOTE}" find "${REMOTE_PATH}/" -type f)" ]]; then
         # No files to be found, write a log message once per hour
         hour="$(date +%H)"
         if [[ "$hour" != "$last_miss_hour" ]]; then
@@ -89,19 +87,19 @@ do
 
         for file in ${WORK}/*; do
             # Archive all the files
-            cp ${file} /archive/
+            cp "${file}" /archive/
 
             log "Processing ${file}"
-            process_file ${file}
+            process_file "${file}"
 
             # Make sure that everything is fine so far and we have a file
-            if [ -f /archive/$(basename ${file}) ]; then
+            if [ -f "/archive/$(basename ${file})" ]; then
 
                 # Delete the temporary file locally
-                rm ${file}
+                rm "${file}"
 
                 # ... and remotely
-                ssh ${SSH_OPTS} ${REMOTE} "rm ${REMOTE_PATH}/$(basename ${file})"
+                ssh ${SSH_OPTS} "${REMOTE}" "rm ${REMOTE_PATH}/$(basename ${file})"
             else
                 log "Something went wrong and we didn't get a file"
                 exit 1
