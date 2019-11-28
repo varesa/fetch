@@ -36,9 +36,11 @@ function process_file {
 
 
     if cat "${tmp}" | python formatter.py >"${out}" 2>"${err}"; then
+        # word-splitting must be enabled to allow multiple recipients in MAIL_RECIPIENT
+        # shellcheck disable=SC2086
         cat "${out}" | sendemail -v \
             -s "${MAIL_SERVER}" -o message-charset=utf-8 \
-            -f "fetch@${MAIL_DOMAIN}" -t "${MAIL_RECIPIENT}" -u "Lomake" -o tls=no
+            -f "fetch@${MAIL_DOMAIN}" -t ${MAIL_RECIPIENT} -u "Lomake" -o tls=no
     else
         {
             echo -e "Virhe käsiteltäessä lomaketta:\n"
